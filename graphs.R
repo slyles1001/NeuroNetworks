@@ -9,8 +9,9 @@ setwd("C:/Users/Seth/Desktop/Internet Algorithms/NeuroNetworks")
 # max(tst_parcel)
 # summary(tst_data)
 k = 10000; n= 50
-library(igraph)
+
 library(ggplot2)
+library(statnet)
 
 plot_ergm_degs = function(k, n){
   stor = array(dim=c(k,60))
@@ -18,8 +19,8 @@ plot_ergm_degs = function(k, n){
   
   
   for (i in 1:k){
-    g = erdos.renyi.game(n, dist[i], type="gnm")
-    gd = degree_distribution(g)
+    g = igraph::erdos.renyi.game(n, dist[i], type="gnm")
+    gd = igraph::degree_distribution(g)
     gd = gd * n
     if(length(gd)> 60) print("oops")
     length(gd) = 60
@@ -34,3 +35,25 @@ plot_ergm_degs = function(k, n){
     ggtitle("Average Deg GNM model, 50 Nodes\n 10000 trials, mean = 19, SD = 9")
 }
 
+adjdf = read.csv("meanadj.csv")[ ,2:51]
+dim(adjdf)
+SN = network(x = adjdf, directed = T, matrix.type = "adjacency", 
+             ignore.eval = F, names.eval = "corr")
+edge_modl = ergm(SN~edges)
+#https://statnet.org/trac/raw-attachment/wiki/Sunbelt2016/ergm_tutorial.html
+summary(edge_modl)
+p_edges = exp(edge_modl$MCMCtheta)/(1+exp(edge_modl$MCMCtheta))
+p_edges
+tri_modl = ergm(SN~edges+triangle)
+
+
+
+pdf("./Average_connection.pdf", # name of pdf (need to include .pdf)
+    width = 10, # width of resulting pdf in inches
+    height = 10 # height of resulting pdf in inches
+) 
+plot.network(SN # our network object
+             
+             
+)
+dev.off() # finishes plotting and finalizes pdf
