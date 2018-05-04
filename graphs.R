@@ -12,7 +12,16 @@ k = 1003; n= 50
 
 library(ggplot2)
 
+avg_edges = read.csv("./meanadj.csv")[2,51]
 
+G_avg = igraph::graph_from_adjacency_matrix(as.matrix(adjdf * 10), directed=F)
+igraph::degree(sm, mode='all')
+sm = igraph::simplify(G_avg)
+cc = igraph::clusters(sm)
+lc = igraph::induced.subgraph(sm, which(membership(cc)==1))
+plot(lc,
+     edge.arrow.mode=0, edge.color= 'black')
+igraph::transitivity(lc, isolates = 'zero')
 
 plot_ergm_degs = function(k, n){
   stor = array(dim=c(k,60))
